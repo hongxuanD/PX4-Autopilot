@@ -95,6 +95,17 @@ void FwTrim::updateAutoTrim(const Vector3f &torque_sp, const float dt)
 	_auto_trim.update(torque_sp - _parameterized_trim, dt);
 }
 
+Vector3f FwTrim::getTrim() const
+{
+	Vector3f trim = _parameterized_trim;
+
+	if (_param_fw_atrim_mode.get() > 0) {
+		trim +=  _auto_trim.getTrim();
+	}
+
+	return trim;
+}
+
 void FwTrim::setAirspeed(const float airspeed)
 {
 	_airspeed = airspeed;
