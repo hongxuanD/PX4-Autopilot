@@ -58,6 +58,9 @@ void FwAutoTrim::updateParams()
 void FwAutoTrim::reset()
 {
 	_state = state::idle;
+	_trim_estimate.reset();
+	_trim_test.reset();
+	_trim_validated.zero();
 }
 
 void FwAutoTrim::update(const Vector3f &torque_sp, const float dt)

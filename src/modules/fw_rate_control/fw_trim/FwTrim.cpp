@@ -82,7 +82,7 @@ void FwTrim::saveParams()
 		// nothing to do
 	}
 
-	_auto_trim.reset()
+	_auto_trim.reset();
 }
 
 void FwTrim::reset()
