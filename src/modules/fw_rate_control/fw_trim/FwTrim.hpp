@@ -39,6 +39,7 @@
 #include <px4_platform_common/module_params.h>
 #include <px4_platform_common/posix.h>
 #include <uORB/topics/parameter_update.h>
+#include <uORB/topics/vehicle_control_mode.h>
 
 #include "FwAutoTrim.hpp"
 
@@ -50,6 +51,7 @@ public:
 	FwTrim(ModuleParams *parent);
 	~FwTrim() = default;
 
+	void saveParams();
 	void reset();
 	void setAirspeed(float airspeed);
 	void updateAutoTrim(const matrix::Vector3f &torque_sp, float dt);
@@ -60,6 +62,12 @@ protected:
 	void updateParams() override;
 
 private:
+	enum class AutoTrimMode {
+		kDisabled = 0,
+		kCalibration,
+		kContinuous
+	};
+
 	void updateParameterizedTrim();
 
 	FwAutoTrim _auto_trim{this};
@@ -68,6 +76,8 @@ private:
 	float _airspeed{0.f};
 
 	DEFINE_PARAMETERS(
+		(ParamInt<px4::params::FW_ATRIM_MODE>) _param_fw_atrim_mode,
+
 		(ParamFloat<px4::params::TRIM_PITCH>) _param_trim_pitch,
 		(ParamFloat<px4::params::TRIM_ROLL>) _param_trim_roll,
 		(ParamFloat<px4::params::TRIM_YAW>) _param_trim_yaw,

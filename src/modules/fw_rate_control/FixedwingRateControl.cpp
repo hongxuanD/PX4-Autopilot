@@ -97,6 +97,12 @@ FixedwingRateControl::parameters_update()
 }
 
 void
+FixedwingRateControl::save_params()
+{
+	_trim.saveParams();
+}
+
+void
 FixedwingRateControl::vehicle_manual_poll()
 {
 	if (_vcontrol_mode.flag_control_manual_enabled && _in_fw_or_transition_wo_tailsitter_transition) {
@@ -257,7 +263,14 @@ void FixedwingRateControl::Run()
 		const bool is_fixed_wing = _vehicle_status.vehicle_type == vehicle_status_s::VEHICLE_TYPE_FIXED_WING;
 		_in_fw_or_transition_wo_tailsitter_transition =  is_fixed_wing || is_in_transition_except_tailsitter;
 
-		_vehicle_control_mode_sub.update(&_vcontrol_mode);
+		{
+			const bool armed_prev = _vcontrol_mode.flag_armed;
+			_vehicle_control_mode_sub.update(&_vcontrol_mode);
+
+			if (!_vcontrol_mode.flag_armed && armed_prev) {
+				save_params();
+			}
+		}
 
 		vehicle_land_detected_poll();
 

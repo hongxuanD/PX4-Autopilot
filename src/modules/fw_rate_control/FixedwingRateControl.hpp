@@ -212,6 +212,8 @@ private:
 	 */
 	int		parameters_update();
 
+	void		save_params();
+
 	void		vehicle_manual_poll();
 	void		vehicle_land_detected_poll();
 
