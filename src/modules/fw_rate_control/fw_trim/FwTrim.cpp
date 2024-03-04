@@ -55,10 +55,12 @@ void FwTrim::updateParams()
 void FwTrim::saveParams()
 {
 	const Vector3f autotrim = _auto_trim.getTrim();
+	bool updated = false;
+	const Vector3f trim_prev(_param_trim_roll.get(), _param_trim_pitch.get(), _param_trim_yaw.get());
 
 	if (_param_fw_atrim_mode.get() == static_cast<int32_t>(AutoTrimMode::kCalibration)) {
 		// Replace the current trim with the one identified during auto-trim
-		bool updated = _param_trim_roll.commit_no_notification(_param_trim_roll.get() + autotrim(0));
+		updated |= _param_trim_roll.commit_no_notification(_param_trim_roll.get() + autotrim(0));
 		updated |= _param_trim_pitch.commit_no_notification(_param_trim_pitch.get() + autotrim(1));
 		updated |= _param_trim_yaw.commit_no_notification(_param_trim_yaw.get() + autotrim(2));
 
@@ -70,7 +72,7 @@ void FwTrim::saveParams()
 	} else  if (_param_fw_atrim_mode.get() == static_cast<int32_t>(AutoTrimMode::kContinuous)) {
 		// In continuous trim mode, limit the amount of trim that can be applied back to the parameter
 		const Vector3f constrained_autotrim = matrix::constrain(autotrim, -0.05f, 0.05f);
-		bool updated = _param_trim_roll.commit_no_notification(_param_trim_roll.get() + constrained_autotrim(0));
+		updated |= _param_trim_roll.commit_no_notification(_param_trim_roll.get() + constrained_autotrim(0));
 		updated |= _param_trim_pitch.commit_no_notification(_param_trim_pitch.get() + constrained_autotrim(1));
 		updated |= _param_trim_yaw.commit_no_notification(_param_trim_yaw.get() + constrained_autotrim(2));
 
@@ -80,6 +82,13 @@ void FwTrim::saveParams()
 
 	} else {
 		// nothing to do
+	}
+
+	if (updated) {
+		const Vector3f trim_new(_param_trim_roll.get(), _param_trim_pitch.get(), _param_trim_yaw.get());
+		PX4_INFO("Trim offset committed: [%.3f %.3f %.3f]->[%.3f %.3f %.3f]",
+			 (double)trim_prev(0), (double)trim_prev(1), (double)trim_prev(2),
+			 (double)trim_new(0), (double)trim_new(1), (double)trim_new(2));
 	}
 
 	_auto_trim.reset();
