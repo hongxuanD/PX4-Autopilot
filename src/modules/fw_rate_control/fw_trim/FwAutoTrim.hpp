@@ -102,6 +102,7 @@ private:
 	perf_counter_t _cycle_perf{perf_alloc(PC_ELAPSED, "[AutoTrim] cycle time")};
 
 	DEFINE_PARAMETERS(
+		(ParamInt<px4::params::SYS_HAS_NUM_ASPD>) _param_sys_has_num_aspd,
 		(ParamFloat<px4::params::FW_AIRSPD_MIN>) _param_fw_airspd_min,
 		(ParamFloat<px4::params::FW_AIRSPD_MAX>) _param_fw_airspd_max
 	)

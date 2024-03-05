@@ -89,7 +89,12 @@ void FwAutoTrim::update(const Vector3f &torque_sp, const float dt)
 		airspeed_validated_s airspeed_validated;
 
 		if (_airspeed_validated_sub.copy(&airspeed_validated)) {
-			_calibrated_airspeed_m_s = airspeed_validated.calibrated_airspeed_m_s;
+			if (PX4_ISFINITE(airspeed_validated.calibrated_airspeed_m_s)) {
+				_calibrated_airspeed_m_s = airspeed_validated.calibrated_airspeed_m_s;
+
+			} else {
+				_calibrated_airspeed_m_s = airspeed_validated.calibrated_ground_minus_wind_m_s;
+			}
 		}
 	}
 
@@ -109,8 +114,8 @@ void FwAutoTrim::update(const Vector3f &torque_sp, const float dt)
 				   && !_landed
 				   && (dt > 0.001f) && (dt < 0.1f)
 				   && torque_sp.isAllFinite()
-				   // && _calibrated_airspeed_m_s >= _param_fw_airspd_min.get()
-				   // && _calibrated_airspeed_m_s <= _param_fw_airspd_max.get()
+				   && ((_calibrated_airspeed_m_s >= _param_fw_airspd_min.get() && _calibrated_airspeed_m_s <= _param_fw_airspd_max.get())
+				       || (!PX4_ISFINITE(_calibrated_airspeed_m_s) && (_param_sys_has_num_aspd.get() == 0)))
 				   && _cos_tilt > cosf(math::radians(_kTiltMaxDeg));
 
 	if (run_auto_trim) {
@@ -126,6 +131,7 @@ void FwAutoTrim::update(const Vector3f &torque_sp, const float dt)
 			break;
 
 		case state::sampling:
+			// Average the torque setpoint over a long period of time
 			_trim_estimate.update(torque_sp);
 
 			if ((now - _state_start_time) > 5_s) {
@@ -136,6 +142,7 @@ void FwAutoTrim::update(const Vector3f &torque_sp, const float dt)
 			break;
 
 		case state::sampling_test:
+			// Average a smaller amount of data to validate the trim estimate
 			_trim_test.update(torque_sp);
 
 			if ((now - _state_start_time) > 2_s) {
