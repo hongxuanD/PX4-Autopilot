@@ -338,55 +338,53 @@ void FixedwingRateControl::Run()
 			_trim.setAirspeed(airspeed);
 			_trim_slew.update(_trim.getTrim(), dt);
 
-			if (_vcontrol_mode.flag_control_rates_enabled) {
-				_rates_sp_sub.update(&_rates_sp);
+			_rates_sp_sub.update(&_rates_sp);
 
-				Vector3f body_rates_setpoint = Vector3f(_rates_sp.roll, _rates_sp.pitch, _rates_sp.yaw);
+			Vector3f body_rates_setpoint = Vector3f(_rates_sp.roll, _rates_sp.pitch, _rates_sp.yaw);
 
-				// Tailsitter: rotate setpoint from hover to fixed-wing frame (controller is in fixed-wing frame, interface in hover)
-				if (_vehicle_status.is_vtol_tailsitter) {
-					body_rates_setpoint = Vector3f(-_rates_sp.yaw, _rates_sp.pitch, _rates_sp.roll);
-				}
+			// Tailsitter: rotate setpoint from hover to fixed-wing frame (controller is in fixed-wing frame, interface in hover)
+			if (_vehicle_status.is_vtol_tailsitter) {
+				body_rates_setpoint = Vector3f(-_rates_sp.yaw, _rates_sp.pitch, _rates_sp.roll);
+			}
 
-				// Run attitude RATE controllers which need the desired attitudes from above, add trim.
-				const Vector3f angular_acceleration_setpoint = _rate_control.update(rates, body_rates_setpoint, angular_accel, dt,
-						_landed);
+			// Run attitude RATE controllers which need the desired attitudes from above, add trim.
+			const Vector3f angular_acceleration_setpoint = _rate_control.update(rates, body_rates_setpoint, angular_accel, dt,
+					_landed);
 
-				const Vector3f gain_ff(_param_fw_rr_ff.get(), _param_fw_pr_ff.get(), _param_fw_yr_ff.get());
-				const Vector3f feedforward = gain_ff.emult(body_rates_setpoint) * _airspeed_scaling;
+			const Vector3f gain_ff(_param_fw_rr_ff.get(), _param_fw_pr_ff.get(), _param_fw_yr_ff.get());
+			const Vector3f feedforward = gain_ff.emult(body_rates_setpoint) * _airspeed_scaling;
 
-				Vector3f control_u = angular_acceleration_setpoint * _airspeed_scaling * _airspeed_scaling + feedforward;
+			Vector3f control_u = angular_acceleration_setpoint * _airspeed_scaling * _airspeed_scaling + feedforward;
 
-				// Special case yaw in Acro: if the parameter FW_ACRO_YAW_CTL is not set then don't control yaw
-				if (!_vcontrol_mode.flag_control_attitude_enabled && !_param_fw_acro_yaw_en.get()) {
-					control_u(2) = _manual_control_setpoint.yaw * _param_fw_man_y_sc.get();
-					_rate_control.resetIntegral(2);
-				}
+			// Special case yaw in Acro: if the parameter FW_ACRO_YAW_CTL is not set then don't control yaw
+			if (!_vcontrol_mode.flag_control_attitude_enabled && !_param_fw_acro_yaw_en.get()) {
+				control_u(2) = _manual_control_setpoint.yaw * _param_fw_man_y_sc.get();
+				_rate_control.resetIntegral(2);
+			}
 
-				if (control_u.isAllFinite()) {
-					matrix::constrain(control_u + _trim_slew.getState(), -1.f, 1.f).copyTo(_vehicle_torque_setpoint.xyz);
+			if (control_u.isAllFinite()) {
+				matrix::constrain(control_u + _trim_slew.getState(), -1.f, 1.f).copyTo(_vehicle_torque_setpoint.xyz);
 
-				} else {
-					_rate_control.resetIntegral();
-					_trim_slew.getState().copyTo(_vehicle_torque_setpoint.xyz);
-				}
+			} else {
+				_rate_control.resetIntegral();
+				_trim_slew.getState().copyTo(_vehicle_torque_setpoint.xyz);
+			}
 
-				/* throttle passed through if it is finite */
-				_vehicle_thrust_setpoint.xyz[0] = PX4_ISFINITE(_rates_sp.thrust_body[0]) ? _rates_sp.thrust_body[0] : 0.0f;
+			/* throttle passed through if it is finite */
+			_vehicle_thrust_setpoint.xyz[0] = PX4_ISFINITE(_rates_sp.thrust_body[0]) ? _rates_sp.thrust_body[0] : 0.0f;
 
-				/* scale effort by battery status */
-				if (_param_fw_bat_scale_en.get() && _vehicle_thrust_setpoint.xyz[0] > 0.1f) {
+			/* scale effort by battery status */
+			if (_param_fw_bat_scale_en.get() && _vehicle_thrust_setpoint.xyz[0] > 0.1f) {
 
-					if (_battery_status_sub.updated()) {
-						battery_status_s battery_status{};
+				if (_battery_status_sub.updated()) {
+					battery_status_s battery_status{};
 
-						if (_battery_status_sub.copy(&battery_status) && battery_status.connected && battery_status.scale > 0.f) {
-							_battery_scale = battery_status.scale;
-						}
+					if (_battery_status_sub.copy(&battery_status) && battery_status.connected && battery_status.scale > 0.f) {
+						_battery_scale = battery_status.scale;
 					}
-
-					_vehicle_thrust_setpoint.xyz[0] *= _battery_scale;
 				}
+
+				_vehicle_thrust_setpoint.xyz[0] *= _battery_scale;
 			}
 
 			// publish rate controller status
