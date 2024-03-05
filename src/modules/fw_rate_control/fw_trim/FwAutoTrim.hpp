@@ -60,7 +60,6 @@ public:
 
 	void reset();
 	void update(const matrix::Vector3f &torque_sp, float dt);
-	int print_status();
 
 	const matrix::Vector3f &getTrim() const { return _trim_validated; }
 

@@ -148,12 +148,3 @@ void FwTrim::updateParameterizedTrim()
 
 	_parameterized_trim = trim;
 }
-
-int FwTrim::print_status()
-{
-	Vector3f trim = getTrim();
-	printf("Trim = (%.3f, %.3f, %.3f)\n", (double)trim(0), (double)trim(1), (double)trim(2));
-
-	_auto_trim.print_status();
-	return 0;
-}

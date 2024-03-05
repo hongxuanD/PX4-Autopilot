@@ -194,13 +194,3 @@ void FwAutoTrim::publishStatus(const hrt_abstime now)
 
 	_auto_trim_status_pub.publish(status_msg);
 }
-
-int FwAutoTrim::print_status()
-{
-	perf_print_counter(_cycle_perf);
-	printf("[AutoTrim] State: %d\n", static_cast<int>(_state));
-	printf("[AutoTrim] Trim validated = (%.3f, %.3f, %.3f)\n", (double)_trim_validated(0), (double)_trim_validated(1),
-	       (double)_trim_validated(2));
-
-	return 0;
-}

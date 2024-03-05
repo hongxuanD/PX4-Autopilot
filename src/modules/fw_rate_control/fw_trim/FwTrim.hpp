@@ -56,7 +56,6 @@ public:
 	void setAirspeed(float airspeed);
 	void updateAutoTrim(const matrix::Vector3f &torque_sp, float dt);
 	matrix::Vector3f getTrim() const;
-	int print_status();
 
 protected:
 	void updateParams() override;

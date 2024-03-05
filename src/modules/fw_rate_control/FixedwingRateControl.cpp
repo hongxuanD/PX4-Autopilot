@@ -566,12 +566,6 @@ fw_rate_control is the fixed-wing rate controller.
 	return 0;
 }
 
-int FixedwingRateControl::print_status()
-{
-	_trim.print_status();
-	return 0;
-}
-
 extern "C" __EXPORT int fw_rate_control_main(int argc, char *argv[])
 {
 	return FixedwingRateControl::main(argc, argv);

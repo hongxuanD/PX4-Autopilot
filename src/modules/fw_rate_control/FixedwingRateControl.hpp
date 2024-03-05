@@ -94,8 +94,6 @@ public:
 	/** @see ModuleBase */
 	static int print_usage(const char *reason = nullptr);
 
-	int print_status() override;
-
 	bool init();
 
 private:
