@@ -73,6 +73,7 @@ struct{
 	int Config_Value{0xFF};
 
 	unsigned char device1_uuid[16];
+	unsigned char device2_uuid[16];
 } config_field;
 
 struct {

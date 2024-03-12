@@ -225,6 +225,18 @@ int measure()
 					config_field.device1_uuid[i]=rx_field.Value[i+3];
 				}
 				PX4_INFO("\n");
+				int device_exist = mk_uwb::read_bytes(26);
+				if(device_exist ==1 && rx_field.Type == NTF_DISCOVERED_DEVICE && rx_field.Length == 23){
+					PX4_INFO("Discovered device ID\n");
+					for (int i= 0; i< 16; ++i){
+						PX4_INFO("%02X ", rx_field.Value[i+3]);
+						config_field.device2_uuid[i]=rx_field.Value[i+3];
+					}
+					PX4_INFO("\n");
+				}
+				else{
+					PX4_WARN("Second device not found");
+				}
 			}
 			else{
 			PX4_WARN("Device not found");
@@ -393,14 +405,14 @@ void Robotics_protocol_manager(const int option)
 		if(_sensor_state==UWBS_READY){
 			_sensor_state=START_DISCOVERY;
 			mk_uwb::measure();
-			if(_sensor_state==DEVICE_DISCOVERED){
-				_sensor_state=STOP_DISCOVERY;
-				mk_uwb::measure();
-				_sensor_state=START_RANGING;
-				mk_uwb::measure();
-				_sensor_state=STOP_RANGING;
-				mk_uwb::measure();
-			}
+			// if(_sensor_state==DEVICE_DISCOVERED){
+			// 	_sensor_state=STOP_DISCOVERY;
+			// 	mk_uwb::measure();
+			// 	_sensor_state=START_RANGING;
+			// 	mk_uwb::measure();
+			// 	_sensor_state=STOP_RANGING;
+			// 	mk_uwb::measure();
+			// }
 		}
 	}
 
