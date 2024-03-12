@@ -27,15 +27,15 @@ extern "C" __EXPORT int mk_uwb_main(int argc, char *argv[])
 	if (argc>1){
             if (strcmp(argv[1], "Start") == 0)
 	    {
-		mk_uwb::Robotics_protocol_manager(CMD_INIT_GET_PLATFORM_INFO);
+		mk_uwb::Robotics_protocol_manager(CMD_START_RANGING);
 	    }
 	    else if(strcmp(argv[1], "StartRanging") == 0)
 	    {
 		mk_uwb::Robotics_protocol_manager(CMD_START_RANGING);
 	    }
-	    else if(strcmp(argv[1], "StopRanging") == 0)
+	    else if(strcmp(argv[1], "TestRanging") == 0)
 	    {
-		mk_uwb::Robotics_protocol_manager(CMD_STOP_RANGING);
+		mk_uwb::Robotics_protocol_manager(CMD_TEST_RANGING);
 	    }
 
 	    else if(strcmp(argv[1], "SetConfig") == 0)

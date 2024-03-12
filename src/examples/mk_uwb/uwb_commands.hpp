@@ -47,7 +47,7 @@ enum SENSOR_STATE{
 	STOP_DISCOVERY=33,
 	//ranging
 	START_RANGING=50,//Same as UWB_RANGING_STOPPED
-	UWB_RANGING_STARTED=51,
+	STOP_RANGING=51,
 	UWB_RANGING_STOPPED=50,//Same as START_RANGING
 
 };
@@ -57,13 +57,14 @@ enum PROTOCOL_CMD_OPTION{
 	CMD_START_RANGING=1,
 	CMD_STOP_RANGING=2,
 	CMD_SET_CONFIGS=3,
+	CMD_TEST_RANGING=4,
 };
 
 // Store contents of rx'd frame
 struct {
 	int Type{0xFF};   // Message type
 	int Length{0xFF};    // Message length
-	int Value[MK_UWB_MAX_PAYLOAD] ;
+	uint8_t Value[MK_UWB_MAX_PAYLOAD] ;
 } rx_field;
 
 struct{
@@ -74,6 +75,19 @@ struct{
 	unsigned char device1_uuid[16];
 } config_field;
 
-
+struct {
+	uint16_t MAC[2];					// MAC address of UWB device
+	uint8_t status;					// Status of Measurement
+	uint16_t distance{0}; 				// Distance in cm
+	uint8_t nLos; 					// line of sight y/n
+	int16_t aoa_azimuth;				// AOA of incoming msg for Azimuth antenna pairing
+	int16_t aoa_elevation;				// AOA of incoming msg for Altitude antenna pairing
+	int16_t aoa_dest_azimuth;			// AOA destination Azimuth
+	int16_t aoa_dest_elevation; 			// AOA destination elevation
+	uint8_t aoa_azimuth_FOM;			// AOA Azimuth FOM
+	uint8_t aoa_elevation_FOM;			// AOA Elevation FOM
+	uint8_t aoa_dest_azimuth_FOM;			// AOA Azimuth FOM
+	uint8_t aoa_dest_elevation_FOM;			// AOA Elevation FOM
+} distance_result;
 
 
