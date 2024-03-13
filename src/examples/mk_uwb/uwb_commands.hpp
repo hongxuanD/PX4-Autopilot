@@ -49,6 +49,7 @@ enum SENSOR_STATE{
 	START_RANGING=50,//Same as UWB_RANGING_STOPPED
 	STOP_RANGING=51,
 	UWB_RANGING_STOPPED=50,//Same as START_RANGING
+	RANGING_FAILED=52,
 
 };
 
@@ -74,6 +75,8 @@ struct{
 
 	unsigned char device1_uuid[16];
 	unsigned char device2_uuid[16];
+
+	int Target_Anchor{0};
 } config_field;
 
 struct {

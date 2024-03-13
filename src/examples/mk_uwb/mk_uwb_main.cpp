@@ -23,7 +23,6 @@
 
 extern "C" __EXPORT int mk_uwb_main(int argc, char *argv[])
 {
-        PX4_INFO("Hello MK UWB");
 	if (argc>1){
             if (strcmp(argv[1], "Start") == 0)
 	    {
@@ -31,12 +30,18 @@ extern "C" __EXPORT int mk_uwb_main(int argc, char *argv[])
 	    }
 	    else if(strcmp(argv[1], "StartRanging") == 0)
 	    {
-		mk_uwb::Robotics_protocol_manager(CMD_START_RANGING);
+		if(argc>=2){
+			mk_uwb::TargetAnchor(argv[2]);
+			mk_uwb::Robotics_protocol_manager(CMD_TEST_RANGING);
+		}
+		else{
+			PX4_ERR("Wrong use of the command");
+		}
 	    }
-	    else if(strcmp(argv[1], "TestRanging") == 0)
-	    {
-		mk_uwb::Robotics_protocol_manager(CMD_TEST_RANGING);
-	    }
+	//     else if(strcmp(argv[1], "TestRanging") == 0)
+	//     {
+	// 	mk_uwb::Robotics_protocol_manager(CMD_TEST_RANGING);
+	//     }
 
 	    else if(strcmp(argv[1], "SetConfig") == 0)
 	    {

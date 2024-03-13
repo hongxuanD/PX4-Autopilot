@@ -39,6 +39,8 @@ namespace mk_uwb
 	void GetConfig(const char* Group_ID, const char* Config_ID);
 
 	void Robotics_protocol_manager(const int option);
+
+	void TargetAnchor(const char *Target_Anchor);
 };
 class UWB_SR150 : public ModuleBase<UWB_SR150>, public ModuleParams, public px4::ScheduledWorkItem
 {
