@@ -408,7 +408,7 @@ int measure()
 			//CMD_SET_CONFIG
 			size_t data_length = sizeof(hex_data);
 			send(hex_data, data_length);
-			mk_uwb::collect();
+			mk_uwb::read_bytes(0x18);
 			break;
 		}
 
@@ -456,10 +456,10 @@ void Robotics_protocol_manager(const int option)
 			if (_sensor_state == DEVICE_DISCOVERED) {
 				_sensor_state = STOP_DISCOVERY;
 				mk_uwb::measure();
-				_sensor_state=START_RANGING;
-				mk_uwb::measure();
-				_sensor_state=STOP_RANGING;
-				mk_uwb::measure();
+				// _sensor_state=START_RANGING;
+				// mk_uwb::measure();
+				// _sensor_state=STOP_RANGING;
+				// mk_uwb::measure();
 
 			}
 		}
