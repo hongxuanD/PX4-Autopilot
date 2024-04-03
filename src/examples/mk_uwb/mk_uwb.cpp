@@ -139,13 +139,13 @@ int read_bytes(const int data_length)
 	if (received) {
 		PX4_INFO("Response recieved \n");
 
-		for (int i = 0; i < data_length; i++) {
-			printf("%02X ", recv_buffer[i]); // Use %02X for hexadecimal format
-		}
+		// for (int i = 0; i < data_length; i++) {
+		// 	printf("%02X ", recv_buffer[i]); // Use %02X for hexadecimal format
+		// }
 
-		printf("\n");
+		// printf("\n");
 
-		request_handle(recv_buffer, data_length);
+		// request_handle(recv_buffer, data_length);
 		return 1;
 
 	} else {
@@ -253,8 +253,8 @@ int measure()
 						PX4_WARN("Second device not found");
 					}
 
-					PX4_WARN("\n Enter 'mk_uwb StartRanging 1' to connect with the first landing base. \n Enter 'mk_uwb StartRanging 2' to connect with the second landing base. \n");
-
+					PX4_WARN("\n Enter 'mk_uwb StartRanging 1' to connect with the first landing base. \n ");
+					PX4_WARN("\n Enter 'mk_uwb StartRanging 2' to connect with the second landing base. \n");
 				} else {
 					PX4_WARN("Device not found");
 				}
@@ -435,6 +435,7 @@ void GetConfig(const char *Group_ID, const char *Config_ID)
 
 void TargetAnchor(const char *Target_Anchor)
 {
+	config_field.Target_Anchor = 0;//Reset to empty to avoid error input
 	config_field.Target_Anchor = atoi(Target_Anchor);
 };
 
