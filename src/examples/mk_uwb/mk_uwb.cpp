@@ -145,7 +145,7 @@ int read_bytes(const int data_length)
 
 		// printf("\n");
 
-		// request_handle(recv_buffer, data_length);
+		request_handle(recv_buffer, data_length);
 		return 1;
 
 	} else {
@@ -359,9 +359,9 @@ int measure()
 
 						i += length;
 
-						sensor_uwb.distance 		= double(distance_result.distance) / 100;
-						sensor_uwb.aoa_azimuth_dev 	= - double(distance_result.aoa_azimuth) / 128;
-						sensor_uwb.aoa_elevation_dev 	= - double(distance_result.aoa_elevation) / 128;
+						sensor_uwb.distance 		= double(distance_result.distance) ;
+						sensor_uwb.aoa_azimuth_dev 	= - double(distance_result.aoa_azimuth) / 180 * 3.14 ;
+						sensor_uwb.aoa_elevation_dev 	= - double(distance_result.aoa_elevation) / 180 * 3.14;
 						orb_publish(ORB_ID(sensor_uwb), sensor_uwb_pub, &sensor_uwb);
 					}
 
