@@ -358,12 +358,12 @@ int measure()
 						}
 
 						i += length;
-
-						sensor_uwb.distance 		= double(distance_result.distance) ;
-						sensor_uwb.aoa_azimuth_dev 	= - double(distance_result.aoa_azimuth) / 180 * 3.14 ;
-						sensor_uwb.aoa_elevation_dev 	= - double(distance_result.aoa_elevation) / 180 * 3.14;
-						orb_publish(ORB_ID(sensor_uwb), sensor_uwb_pub, &sensor_uwb);
 					}
+					
+					sensor_uwb.distance 		= double(distance_result.distance) ;
+					sensor_uwb.aoa_azimuth_dev 	= double(distance_result.aoa_azimuth)  ;
+					sensor_uwb.aoa_elevation_dev 	= - double(distance_result.aoa_elevation) ;
+					orb_publish(ORB_ID(sensor_uwb), sensor_uwb_pub, &sensor_uwb) ;
 
 					index = index + 1;
 					printf("The index is %hu \n", index);
