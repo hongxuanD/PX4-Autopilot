@@ -318,6 +318,7 @@ void LandingTargetEstimator::_update_topics()
 		_target_position_report.rel_pos_y = position(1);
 		_target_position_report.rel_pos_z = position(2);
 		_new_irlockReport = true;
+		PX4_INFO("Prec land in procedure");
 	}
 }
 
