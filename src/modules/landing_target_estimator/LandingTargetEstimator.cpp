@@ -251,6 +251,7 @@ void LandingTargetEstimator::_update_topics()
 		_new_irlockReport = true;
 
 	} else if (_sensorUwbSub.update(&_sensorUwb)) {
+		PX4_WARN("Debug check point 1.5: UWB ranging data upadated");
 
 		if (!_vehicleAttitude_valid || !_vehicleLocalPosition_valid) {
 			// don't have the data needed for an update
