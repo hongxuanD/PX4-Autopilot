@@ -61,11 +61,12 @@ LandingTargetEstimator::LandingTargetEstimator() :
 void LandingTargetEstimator::update()
 {
 	_check_params(false);
-
+	PX4_WARN("Debug check point 1: Estimator launched");
 	_update_topics();
 
 	/* predict */
 	if (_estimator_initialized) {
+		PX4_WARN("Debug check point 3");
 		if (hrt_absolute_time() - _last_update > landing_target_estimator_TIMEOUT_US) {
 			PX4_WARN("Timeout");
 			_estimator_initialized = false;
@@ -102,6 +103,7 @@ void LandingTargetEstimator::update()
 
 
 	if (!_estimator_initialized) {
+		PX4_WARN("Debug check point 4");
 		float vx_init = _vehicleLocalPosition.v_xy_valid ? -_vehicleLocalPosition.vx : 0.f;
 		float vy_init = _vehicleLocalPosition.v_xy_valid ? -_vehicleLocalPosition.vy : 0.f;
 		PX4_INFO("Init %.2f %.2f", (double)vx_init, (double)vy_init);
@@ -113,6 +115,7 @@ void LandingTargetEstimator::update()
 		_last_predict = _last_update;
 
 	} else {
+		PX4_WARN("Debug check point 5");
 		// update
 		const float measurement_uncertainty = _params.meas_unc * _dist_z * _dist_z;
 		bool update_x = _kalman_filter_x.update(_target_position_report.rel_pos_x, measurement_uncertainty);
@@ -318,7 +321,7 @@ void LandingTargetEstimator::_update_topics()
 		_target_position_report.rel_pos_y = position(1);
 		_target_position_report.rel_pos_z = position(2);
 		_new_irlockReport = true;
-		PX4_INFO("Prec land in procedure");
+		PX4_WARN("Debug check point 2: UWB ranging data handled");
 	}
 }
 
