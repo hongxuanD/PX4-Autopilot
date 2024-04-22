@@ -61,12 +61,12 @@ LandingTargetEstimator::LandingTargetEstimator() :
 void LandingTargetEstimator::update()
 {
 	_check_params(false);
-	PX4_WARN("Debug check point 1: Estimator launched");
+	PX4_WARN("Debug check point: Estimator updating");
 	_update_topics();
 
 	/* predict */
 	if (_estimator_initialized) {
-		PX4_WARN("Debug check point 3");
+		//PX4_WARN("Debug check point 3");
 		if (hrt_absolute_time() - _last_update > landing_target_estimator_TIMEOUT_US) {
 			PX4_WARN("Timeout");
 			_estimator_initialized = false;
@@ -103,7 +103,7 @@ void LandingTargetEstimator::update()
 
 
 	if (!_estimator_initialized) {
-		PX4_WARN("Debug check point 4");
+		//PX4_WARN("Debug check point 4");
 		float vx_init = _vehicleLocalPosition.v_xy_valid ? -_vehicleLocalPosition.vx : 0.f;
 		float vy_init = _vehicleLocalPosition.v_xy_valid ? -_vehicleLocalPosition.vy : 0.f;
 		PX4_INFO("Init %.2f %.2f", (double)vx_init, (double)vy_init);
@@ -115,7 +115,7 @@ void LandingTargetEstimator::update()
 		_last_predict = _last_update;
 
 	} else {
-		PX4_WARN("Debug check point 5");
+		//PX4_WARN("Debug check point 5");
 		// update
 		const float measurement_uncertainty = _params.meas_unc * _dist_z * _dist_z;
 		bool update_x = _kalman_filter_x.update(_target_position_report.rel_pos_x, measurement_uncertainty);
@@ -133,7 +133,7 @@ void LandingTargetEstimator::update()
 
 		if (!_faulty) {
 			// only publish if both measurements were good
-
+			PX4_WARN("Debug check point: Measurement is good");
 			_target_pose.timestamp = _target_position_report.timestamp;
 
 			float x, xvel, y, yvel, covx, covx_v, covy, covy_v;
@@ -160,17 +160,19 @@ void LandingTargetEstimator::update()
 			_target_pose.cov_vy_rel = covy_v;
 
 			if (_vehicleLocalPosition_valid && _vehicleLocalPosition.xy_valid) {
+				PX4_WARN("Debug check point: abs_pos_valid published");
 				_target_pose.x_abs = x + _vehicleLocalPosition.x;
 				_target_pose.y_abs = y + _vehicleLocalPosition.y;
 				_target_pose.z_abs = _target_position_report.rel_pos_z  + _vehicleLocalPosition.z;
 				_target_pose.abs_pos_valid = true;
 
 			} else {
+				PX4_WARN("Debug check point: abs_pos_valid false published");
 				_target_pose.abs_pos_valid = false;
 			}
 
 			_targetPosePub.publish(_target_pose);
-
+			PX4_WARN("Debug check point: target positon published");
 			_last_update = hrt_absolute_time();
 			_last_predict = _last_update;
 		}
@@ -251,7 +253,7 @@ void LandingTargetEstimator::_update_topics()
 		_new_irlockReport = true;
 
 	} else if (_sensorUwbSub.update(&_sensorUwb)) {
-		PX4_WARN("Debug check point 1.5: UWB ranging data upadated");
+		//PX4_WARN("Debug check point 1.5: UWB ranging data upadated");
 
 		if (!_vehicleAttitude_valid || !_vehicleLocalPosition_valid) {
 			// don't have the data needed for an update
@@ -322,7 +324,7 @@ void LandingTargetEstimator::_update_topics()
 		_target_position_report.rel_pos_y = position(1);
 		_target_position_report.rel_pos_z = position(2);
 		_new_irlockReport = true;
-		PX4_WARN("Debug check point 2: UWB ranging data handled");
+		//PX4_WARN("Debug check point 2: UWB ranging data handled");
 	}
 }
 

@@ -115,7 +115,11 @@ PrecLand::on_active()
 	_target_pose_updated = _target_pose_sub.update(&_target_pose);
 
 	if (_target_pose_updated) {
+		PX4_INFO("Debug check point: Target position updating");
 		_target_pose_valid = true;
+	}
+	else{
+		PX4_INFO("Debug check point: Target position stopped updating");
 	}
 
 	if ((hrt_elapsed_time(&_target_pose.timestamp) / 1e6f) > _param_pld_btout.get()) {
@@ -480,6 +484,7 @@ bool PrecLand::check_state_conditions(PrecLandState state)
 		}
 
 		// If we're trying to switch to this state, the target needs to be visible
+		PX4_INFO("Debug check point: Target visible check - _target_pose_updated: %d, _target_pose_valid: %d, _target_pose.abs_pos_valid: %d", _target_pose_updated, _target_pose_valid, _target_pose.abs_pos_valid);
 		return _target_pose_updated && _target_pose_valid && _target_pose.abs_pos_valid;
 
 	case PrecLandState::DescendAboveTarget:

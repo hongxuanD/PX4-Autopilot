@@ -12,6 +12,10 @@
 #include <px4_platform_common/getopt.h>
 #include <px4_platform_common/cli.h>
 #include <px4_platform_common/module_params.h>
+#include <px4_platform_common/px4_config.h>
+#include <px4_platform_common/defines.h>
+#include <px4_platform_common/tasks.h>
+#include <px4_platform_common/posix.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <systemlib/err.h>
@@ -308,7 +312,6 @@ int measure()
 			// Create a uORB topic advertisement
 			orb_advert_t sensor_uwb_pub = orb_advertise(ORB_ID(sensor_uwb), &sensor_uwb);
 
-			sensor_uwb.timestamp 		= hrt_absolute_time();
 			//Need to change, now they are hardcoded
 			sensor_uwb.orientation		= ROTATION_NONE;
 			sensor_uwb.offset_x		= 0;
@@ -359,7 +362,7 @@ int measure()
 
 						i += length;
 					}
-					
+					sensor_uwb.timestamp 		= hrt_absolute_time();
 					sensor_uwb.distance 		= double(distance_result.distance) ;
 					sensor_uwb.aoa_azimuth_dev 	= double(distance_result.aoa_azimuth)  ;
 					sensor_uwb.aoa_elevation_dev 	= - double(distance_result.aoa_elevation) ;

@@ -1,5 +1,0 @@
-menuconfig EXAMPLES_AUTONOMOUS_LANDING
-	bool "autonomous_landing"
-	default n
-	---help---
-		Enable support for autonomous_landing
