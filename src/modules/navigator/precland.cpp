@@ -115,11 +115,7 @@ PrecLand::on_active()
 	_target_pose_updated = _target_pose_sub.update(&_target_pose);
 
 	if (_target_pose_updated) {
-		PX4_INFO("Debug check point: Target position updating");
 		_target_pose_valid = true;
-	}
-	else{
-		PX4_INFO("Debug check point: Target position stopped updating");
 	}
 
 	if ((hrt_elapsed_time(&_target_pose.timestamp) / 1e6f) > _param_pld_btout.get()) {
@@ -484,11 +480,10 @@ bool PrecLand::check_state_conditions(PrecLandState state)
 		}
 
 		// If we're trying to switch to this state, the target needs to be visible
-		PX4_INFO("Debug check point: Target visible check - _target_pose_updated: %d, _target_pose_valid: %d, _target_pose.abs_pos_valid: %d", _target_pose_updated, _target_pose_valid, _target_pose.abs_pos_valid);
+		PX4_INFO("Debug check point: Target visible check - _target_pose_updated: %d, _target_pose_valid: %d, \n_target_pose.abs_pos_valid: %d", _target_pose_updated, _target_pose_valid, _target_pose.abs_pos_valid);
 		return _target_pose_updated && _target_pose_valid && _target_pose.abs_pos_valid;
 
 	case PrecLandState::DescendAboveTarget:
-
 		// if we're already in this state, only leave it if target becomes unusable, don't care about horizontall offset to target
 		if (_state == PrecLandState::DescendAboveTarget) {
 			// if we're close to the ground, we're more critical of target timeouts so we quickly go into descend
@@ -500,10 +495,24 @@ bool PrecLand::check_state_conditions(PrecLandState state)
 			}
 
 		} else {
+			float x_diff = fabsf(_target_pose.x_abs - vehicle_local_position->x);
+			float y_diff = fabsf(_target_pose.y_abs - vehicle_local_position->y);
+
+
+			PX4_INFO("x_diff = %f, y_diff = %f", static_cast<double>(x_diff), static_cast<double>(y_diff));
+			bool condition1 = _target_pose_updated && _target_pose.abs_pos_valid;
+			float tolerance = _param_pld_hacc_rad.get();
+			bool condition2 = x_diff < tolerance;
+			bool condition3 = y_diff < tolerance;
+
+			PX4_INFO("Condition 1: %s", condition1 ? "True" : "False");
+			PX4_INFO("Condition 2: %s", condition2 ? "True" : "False");
+			PX4_INFO("Condition 3: %s", condition3 ? "True" : "False");
 			// if not already in this state, need to be above target to enter it
 			return _target_pose_updated && _target_pose.abs_pos_valid
 			       && fabsf(_target_pose.x_abs - vehicle_local_position->x) < _param_pld_hacc_rad.get()
 			       && fabsf(_target_pose.y_abs - vehicle_local_position->y) < _param_pld_hacc_rad.get();
+
 		}
 
 	case PrecLandState::FinalApproach:
