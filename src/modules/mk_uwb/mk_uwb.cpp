@@ -557,8 +557,6 @@ int request_handle(uint8_t *input_buf, const int data_length)
 		rx_field.Value[i] = input_buf[i + 3];
 	}
 
-	// PX4_INFO("The type is %d \n", rx_field.Type);
-	// PX4_INFO("The length is %d \n", rx_field.Length);
 	return 0;
 };
 
