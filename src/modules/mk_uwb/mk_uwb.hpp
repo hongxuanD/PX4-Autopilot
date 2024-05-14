@@ -21,7 +21,7 @@
 
 #include <matrix/math.hpp>
 
-
+#include <uORB/topics/vehicle_land_detected.h>
 #include <uORB/SubscriptionInterval.hpp>
 
 
@@ -53,7 +53,7 @@ public:
 
 	bool init();
 
-	void start();
+	bool start();
 
 	void stop();
 
@@ -65,11 +65,15 @@ private:
 	void parameters_update();
 
 	struct sensor_uwb_s sensor_uwb;
+	// Create a uORB topic advertisement
+	orb_advert_t sensor_uwb_pub = orb_advertise(ORB_ID(sensor_uwb), &sensor_uwb);
+
 
 	// Publications
-	uORB::Publication<sensor_uwb_s> _sensor_uwb_pub{ORB_ID(sensor_uwb)};
+	// uORB::Publication<sensor_uwb_s> sensor_uwb_pub{ORB_ID(sensor_uwb)};
 
 	// Subscriptions
+	uORB::Subscription _vehicle_land_detected_sub{ORB_ID(vehicle_land_detected)};
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
 
 

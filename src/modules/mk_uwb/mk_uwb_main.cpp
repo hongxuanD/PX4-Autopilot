@@ -17,6 +17,7 @@
 #include <math.h>
 #include <uORB/uORB.h>
 #include <uORB/topics/sensor_uwb.h>
+#include <uORB/topics/vehicle_land_detected.h>
 #include "mk_uwb.hpp"
 
 static bool thread_should_exit = false;	/**< daemon exit flag */
@@ -93,22 +94,52 @@ exiterr:
 
 int mk_uwb_thread_main(int argc, char *argv[])
 {
+	vehicle_land_detected_s vehicle_land_detected;
+	uORB::Subscription _vehicle_land_detected_sub{ORB_ID(vehicle_land_detected)};
+	bool landed= true;
 	PX4_DEBUG("starting");
 
 	thread_running = true;
 	MK_UWB est;
-	bool init_success= est.init();
+	est.init();
 
-	while (!thread_should_exit && init_success) {
-		est.Run();
+	bool start_success= false;
+
+	while (!thread_should_exit) {
+		//Determine the state
+		if (_vehicle_land_detected_sub.update(&vehicle_land_detected)) {
+			landed = vehicle_land_detected.landed;
+		}
+		//On ground state
+		if (landed == true){
+			px4_usleep(100000);
+			//If ranging started will be stopped
+			if (start_success){
+				est.~MK_UWB();
+				start_success = false;
+			}
+		}
+		//Flying state
+		else{
+			//First time start
+			if (start_success == false){
+				start_success = est.start();
+				if (start_success){
+					PX4_INFO("UWBS RANGING START SUCCESS");
+				}
+				else{
+					PX4_ERR("UWBS RANGING START FAILED");
+				}
+			}
+			//Already ranging
+			else{
+				est.Run();
+			}
+		}
 		px4_usleep(1000000 / mk_uwb_UPDATE_RATE_HZ);
 	}
-	est.~MK_UWB();
-
-	PX4_DEBUG("exiting");
 
 	thread_running = false;
-
 	return 0;
 }
 

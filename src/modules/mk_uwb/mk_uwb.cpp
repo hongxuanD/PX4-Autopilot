@@ -47,12 +47,52 @@ MK_UWB::~MK_UWB()
 	printf("UWB: Ranging Stopped\t\n");
 	_sensor_state=STOP_RANGING;
 	collectData();
-	close(uart_fd);
+	//close(uart_fd);
+}
+
+bool MK_UWB::start()
+{
+	/* schedule a cycle to start things */
+	//ScheduleNow();
+	if (_sensor_state!=DEVICE_DISCOVERED){
+		_sensor_state = START_DISCOVERY;
+		collectData();
+		if (_sensor_state!=DEVICE_DISCOVERED){
+			_sensor_state = STOP_DISCOVERY;
+			collectData();
+		}
+	}
+
+	if (_sensor_state==DEVICE_DISCOVERED){
+		_sensor_state = STOP_DISCOVERY;
+		collectData();
+
+		config_field.Target_Anchor=1;
+
+		_sensor_state = START_RANGING;
+		collectData();
+
+	}
+
+	if (rx_field.Type == NTF_UWB_CHANGE_STATE && rx_field.Length == 0x26) {
+		return true;
+	}
+	else{
+		usleep(10000);
+		_sensor_state = START_RANGING;
+		collectData();
+
+		if (rx_field.Type == NTF_UWB_CHANGE_STATE && rx_field.Length == 0x26) {
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 }
 
 bool MK_UWB::init()
 {
-
 	// alternatively, Run on fixed interval
 	// ScheduleOnInterval(5000_us); // 2000 us interval, 200 Hz rate
 	const char *serial_port = "/dev/ttyS6"; // Serial port device file
@@ -89,33 +129,16 @@ bool MK_UWB::init()
 
 	_sensor_state = UWB_NOT_INITIALIZED;
 	collectData();
-	while (_sensor_state!=DEVICE_DISCOVERED){
-		_sensor_state = START_DISCOVERY;
-		usleep(10000);
-		collectData();
-	}
-	_sensor_state = STOP_DISCOVERY;
+	usleep(10000); // Wait for 10 milliseconds
+
+	_sensor_state = SCANNER_CONFIG;
 	collectData();
+	usleep(10000); // Wait for 10 milliseconds
 
-	config_field.Target_Anchor=1;
-
-	_sensor_state = START_RANGING;
+	//DEVICE_UUID SET TO 80086ab8c6880990264c107ddb38555a
+	_sensor_state = UUID_CONFIG;
 	collectData();
-
-	if (rx_field.Type == NTF_UWB_CHANGE_STATE && rx_field.Length == 0x26) {
-		return true;
-	}
-	else{
-		return false;
-		_sensor_state = STOP_RANGING;
-		collectData();
-	}
-}
-
-void MK_UWB::start()
-{
-	/* schedule a cycle to start things */
-	//ScheduleNow();
+	return true;
 }
 
 void MK_UWB::stop()
@@ -145,6 +168,7 @@ int MK_UWB::collectData()
 
 	// sensor state 0 not initialized
 	case UWB_NOT_INITIALIZED: {
+			mk_uwb::read_bytes(7);
 			unsigned char hex_data[] = {CMD_INIT_UWBS, 0x00, 0x00};
 			size_t data_length = sizeof(hex_data);
 			mk_uwb::send(hex_data, data_length);
@@ -203,9 +227,6 @@ int MK_UWB::collectData()
 					} else {
 						PX4_WARN("Second device not found");
 					}
-
-					PX4_WARN("\n Enter 'mk_uwb StartRanging 1' to connect with the first landing base. \n ");
-					PX4_WARN("\n Enter 'mk_uwb StartRanging 2' to connect with the second landing base. \n");
 				} else {
 					PX4_WARN("Device not found");
 				}
@@ -260,10 +281,6 @@ int MK_UWB::collectData()
 
 	case RECEIVE_RANGING_DATA: {
 
-
-		// Create a uORB topic advertisement
-		orb_advert_t sensor_uwb_pub = orb_advertise(ORB_ID(sensor_uwb), &sensor_uwb);
-
 		//Need to change, now they are hardcoded
 		sensor_uwb.orientation		= ROTATION_NONE;
 		sensor_uwb.offset_x		= 0;
@@ -272,7 +289,7 @@ int MK_UWB::collectData()
 
 
 		//usleep(4000);
-		if (mk_uwb::read_bytes(0x47) == 0) {
+		if (mk_uwb::read_bytes(0x5A) == 0) {
 			break;
 		};
 
@@ -301,12 +318,12 @@ int MK_UWB::collectData()
 			} else if (tag == 0x0B) {
 				uint8_t Azimuth_bytes[2] = {rx_field.Value[i], rx_field.Value[i + 1]};
 				distance_result.aoa_azimuth = (int16_t)((Azimuth_bytes[0] << 8) | Azimuth_bytes[1]);
-				printf("The azimuth is %d degree\n", distance_result.aoa_azimuth);
+				printf("The azimuth is %d degree\n", -distance_result.aoa_azimuth);
 
 			} else if (tag == 0x0C) {
 				uint8_t Elevation_bytes[2] = {rx_field.Value[i], rx_field.Value[i + 1]};
 				distance_result.aoa_elevation = (int16_t)((Elevation_bytes[0] << 8) | Elevation_bytes[1]);
-				printf("The elevation is %d degree\n", distance_result.aoa_elevation);
+				printf("The elevation is %d degree\n", -distance_result.aoa_elevation);
 			}
 
 			i += length;
@@ -356,10 +373,52 @@ int MK_UWB::collectData()
 			mk_uwb::read_bytes(0x18);
 			break;
 		}
+	case SCANNER_CONFIG: {
+			unsigned char hex_data[] = {0x05, 0x00, 0x0C,
+						    0x01, 0x00, 0x01, 0x00,
+						    0x02, 0x00, 0x01, 0x05,
+						    0x03, 0x00, 0x01, 0x02
+						   };
+			//CMD_SET_CONFIG
+			size_t data_length = sizeof(hex_data);
+			mk_uwb::send(hex_data, data_length);
+			if (mk_uwb::read_bytes(5) == 1){
+				PX4_INFO("SCANNER CONFIGURED");
+			}
+			break;
+		}
 
 		// default:
 		// 	break;
 		// }
+
+
+	case UUID_CONFIG: {
+			unsigned char hex_data[] = {0x05, 0x00, 0x1B,
+						    0x01, 0x00, 0x01, 0x00,
+						    0x02, 0x00, 0x01, 0x04,
+						    0x03, 0x00, 0x10, 0x80, 0x08, 0x6A, 0xB8, 0xC6, 0x88, 0x09, 0x90, 0x26, 0x4C, 0x10, 0x7D, 0xDB, 0x38, 0x55, 0x5A
+						   };
+			//CMD_SET_CONFIG
+			size_t data_length = sizeof(hex_data);
+			mk_uwb::send(hex_data, data_length);
+			if (mk_uwb::read_bytes(5) == 1){
+				PX4_INFO("DEVICE UUID CONFIGURED");
+			}
+			unsigned char hex_data2[] = {0x05, 0x00, 0x1B,
+						    0x01, 0x00, 0x01, 0x00,
+						    0x02, 0x00, 0x01, 0x03,
+						    0x03, 0x00, 0x10, 0x00, 0x00, 0xFE, 0xE9, 0x00, 0x00, 0x10, 0x00, 0x91, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB
+						   };
+			//CMD_SET_CONFIG
+			size_t data_length2 = sizeof(hex_data2);
+			mk_uwb::send(hex_data2, data_length2);
+			if (mk_uwb::read_bytes(5) == 1){
+				PX4_INFO("OOB UUID CONFIGURED");
+			}
+			break;
+	}
+
 	}
 	return 1;
 }
@@ -559,13 +618,13 @@ int read_bytes(const int data_length)
 	}
 
 	if (received) {
-		//PX4_INFO("Response recieved \n");
+		PX4_INFO("Response recieved \n");
 
-		// for (int i = 0; i < data_length; i++) {
-		// 	printf("%02X ", recv_buffer[i]); // Use %02X for hexadecimal format
-		// }
+		for (int i = 0; i < data_length; i++) {
+			printf("%02X ", recv_buffer[i]); // Use %02X for hexadecimal format
+		}
 
-		// printf("\n");
+		printf("\n");
 
 		request_handle(recv_buffer, data_length);
 		return 1;

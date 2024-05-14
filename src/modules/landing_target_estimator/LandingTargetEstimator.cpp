@@ -316,6 +316,8 @@ void LandingTargetEstimator::_update_topics()
 		_target_position_report.rel_pos_x = position(0);
 		_target_position_report.rel_pos_y = position(1);
 		_target_position_report.rel_pos_z = position(2);
+		PX4_INFO("x_diff = %f, y_diff = %f", static_cast<double>(position(0)), static_cast<double>(position(1)));
+		PX4_INFO("z_diff = %f", static_cast<double>(position(2)));
 		_new_irlockReport = true;
 	}
 }
