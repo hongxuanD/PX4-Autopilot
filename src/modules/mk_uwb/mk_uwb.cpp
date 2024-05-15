@@ -54,6 +54,7 @@ bool MK_UWB::start()
 {
 	/* schedule a cycle to start things */
 	//ScheduleNow();
+	MK_UWB::parameters_update();
 	if (_sensor_state!=DEVICE_DISCOVERED){
 		_sensor_state = START_DISCOVERY;
 		collectData();
@@ -443,18 +444,17 @@ int MK_UWB::custom_command(int argc, char *argv[])
 	return print_usage("unknown command");
 }
 
-// //void MK_UWB::parameters_update(bool force)
-// {
-// 	// check for parameter updates
-// 	if (_parameter_update_sub.updated() || force) {
-// 		// clear update
-// 		parameter_update_s update;
-// 		_parameter_update_sub.copy(&update);
+void MK_UWB::parameters_update()
+{
+	if (_parameter_update_sub.updated()) {
+		parameter_update_s param_update;
+		_parameter_update_sub.copy(&param_update);
 
-// 		// update parameters from storage
-// 		updateParams();
-// 	}
-// }
+		// If any parameter updated, call updateParams() to check if
+		// this class attributes need updating (and do so).
+		updateParams();
+	}
+}
 
 int MK_UWB::print_usage(const char *reason)
 {

@@ -64,7 +64,12 @@ public:
 private:
 	void parameters_update();
 
+	DEFINE_PARAMETERS(
+		(ParamInt<px4::params::SYS_AUTOSTART>) _sys_autostart,   /**< example parameter */
+		(ParamFloat<px4::params::ATT_BIAS_MAX>) _att_bias_max  /**< another parameter */
+	)
 	struct sensor_uwb_s sensor_uwb;
+
 	// Create a uORB topic advertisement
 	orb_advert_t sensor_uwb_pub = orb_advertise(ORB_ID(sensor_uwb), &sensor_uwb);
 
