@@ -61,12 +61,13 @@ public:
 
 	void Run() ;
 
-private:
 	void parameters_update();
 
+private:
+
+
 	DEFINE_PARAMETERS(
-		(ParamInt<px4::params::SYS_AUTOSTART>) _sys_autostart,   /**< example parameter */
-		(ParamFloat<px4::params::ATT_BIAS_MAX>) _att_bias_max  /**< another parameter */
+		(ParamInt<px4::params::UWB_TARG_BASE>) target_anchor
 	)
 	struct sensor_uwb_s sensor_uwb;
 

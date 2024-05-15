@@ -80,7 +80,6 @@ struct{
 	unsigned char device1_uuid[16];
 	unsigned char device2_uuid[16];
 
-	int Target_Anchor{0};
 } config_field;
 
 struct {

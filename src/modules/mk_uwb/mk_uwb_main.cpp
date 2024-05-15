@@ -106,6 +106,7 @@ int mk_uwb_thread_main(int argc, char *argv[])
 	bool start_success= false;
 
 	while (!thread_should_exit) {
+		est.parameters_update();
 		//Determine the state
 		if (_vehicle_land_detected_sub.update(&vehicle_land_detected)) {
 			landed = vehicle_land_detected.landed;

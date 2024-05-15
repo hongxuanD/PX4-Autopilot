@@ -87,3 +87,16 @@ parameters:
             39: ROTATION_PITCH_315
             40: ROTATION_ROLL_90_PITCH_315
           default: 0
+
+        UWB_TARG_BASE:
+          description:
+            short: Target anchor number
+            long: Target anchor number acording to the different device ID
+          type: enum
+          values:
+            1: 1e9588e526f142ec8c1e080e1f27d001
+            2: 1e9588e526f142ec8c1e080e1f27d002
+            3: 1e9588e526f142ec8c1e080e1f27d003
+            4: 1e9588e526f142ec8c1e080e1f27d004
+            5: 1e9588e526f142ec8c1e080e1f27d005
+          default: 1
