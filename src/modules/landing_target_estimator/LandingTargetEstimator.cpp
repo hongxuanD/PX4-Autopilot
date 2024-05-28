@@ -307,6 +307,14 @@ void LandingTargetEstimator::_update_topics()
 		//Rotate around orientation off the initiator:
 		position = get_rot_matrix(static_cast<enum Rotation>(_sensorUwb.orientation)) *
 			   position; //cast the orientation to Rotation enum
+			   
+
+		float yaw_angle = _vehicleLocalPosition.heading;
+		PX4_INFO("Current yaw angle: %f radians", (double)yaw_angle);
+	        matrix::Dcmf yaw_rotation_matrix = matrix::Eulerf(0, 0, yaw_angle);
+        	position = yaw_rotation_matrix * position;
+
+
 		// And add the initiator offset:
 		position +=  matrix::Vector3f(_sensorUwb.offset_x,  _sensorUwb.offset_y,  _sensorUwb.offset_z);
 
