@@ -74,7 +74,7 @@ bool MK_UWB::start()
 
 	}
 
-	if (rx_field.Type == NTF_UWB_CHANGE_STATE && rx_field.Length == 0x26) {
+	if (rx_field.Type == NTF_UWB_CHANGE_STATE && rx_field.Length == 0x26 && rx_field.Value[0] == 0x01) {
 		return true;
 	}
 	else{
@@ -82,7 +82,7 @@ bool MK_UWB::start()
 		_sensor_state = START_RANGING;
 		collectData();
 
-		if (rx_field.Type == NTF_UWB_CHANGE_STATE && rx_field.Length == 0x26) {
+		if (rx_field.Type == NTF_UWB_CHANGE_STATE && rx_field.Length == 0x26 && rx_field.Value[0] == 0x01) {
 			return true;
 		}
 		else{
@@ -550,7 +550,7 @@ int read_bytes(const int data_length)
 	ssize_t bytes_read = 0;
 	ssize_t total_bytes_read = 0;
 	// Define a timeout in microseconds
-	const hrt_abstime timeout_usec = 5000000; // 5 seconds timeout
+	const hrt_abstime timeout_usec = 10000000; // 10 seconds timeout
 	hrt_abstime start_time = hrt_absolute_time();
 	bool received = false;
 
