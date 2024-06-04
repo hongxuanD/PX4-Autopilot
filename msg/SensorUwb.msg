@@ -33,8 +33,3 @@ float32 offset_x		# UWB initiator offset in X axis (NED drone frame)
 float32 offset_y		# UWB initiator offset in Y axis (NED drone frame)
 float32 offset_z		# UWB initiator offset in Z axis (NED drone frame)
 
-# UWB_ANCHOR Command uORB message. Used for giving command to the UWBS
-uint16 uwb_anchor_cmd			# test command
-uint16 group_id
-uint16 config_id
-uint16 config_value

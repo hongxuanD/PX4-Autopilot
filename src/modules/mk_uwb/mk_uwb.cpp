@@ -54,7 +54,10 @@ bool MK_UWB::start()
 {
 	/* schedule a cycle to start things */
 	//ScheduleNow();
-	printf("TARGET ANCHOR IS %lu \n", target_anchor.get());
+	parameters_update();
+	int current_target_anchor = target_anchor.get();
+    	PX4_INFO("Running with target anchor: %d", current_target_anchor);
+
 	if (_sensor_state!=DEVICE_DISCOVERED){
 		_sensor_state = START_DISCOVERY;
 		collectData();
@@ -254,14 +257,24 @@ int MK_UWB::collectData()
 	//sensor state 2 START_RANGING
 	case START_RANGING: {
 			if (target_anchor.get() == 1) {
-				unsigned char hex_data1[] = {CMD_START_UWB_RANGING, 0x00, 0x13, 0x03, 0x00, 0x10, config_field.device1_uuid[0], config_field.device1_uuid[1], config_field.device1_uuid[2], config_field.device1_uuid[3], config_field.device1_uuid[4], config_field.device1_uuid[5], config_field.device1_uuid[6], config_field.device1_uuid[7], config_field.device1_uuid[8], config_field.device1_uuid[9], config_field.device1_uuid[10], config_field.device1_uuid[11], config_field.device1_uuid[12], config_field.device1_uuid[13], config_field.device1_uuid[14], 0x01};
-				size_t data_length = sizeof(hex_data1);
-				mk_uwb::send(hex_data1, data_length);
+				if (config_field.device1_uuid[15]==0x01 || config_field.device2_uuid[15]==0x01){
+					unsigned char hex_data1[] = {CMD_START_UWB_RANGING, 0x00, 0x13, 0x03, 0x00, 0x10, config_field.device1_uuid[0], config_field.device1_uuid[1], config_field.device1_uuid[2], config_field.device1_uuid[3], config_field.device1_uuid[4], config_field.device1_uuid[5], config_field.device1_uuid[6], config_field.device1_uuid[7], config_field.device1_uuid[8], config_field.device1_uuid[9], config_field.device1_uuid[10], config_field.device1_uuid[11], config_field.device1_uuid[12], config_field.device1_uuid[13], config_field.device1_uuid[14], 0x01};
+					size_t data_length = sizeof(hex_data1);
+					mk_uwb::send(hex_data1, data_length);
+				}
+				else{
+					break;
+				}
 
 			} else if (target_anchor.get() == 2) {
-				unsigned char hex_data2[] = {CMD_START_UWB_RANGING, 0x00, 0x13, 0x03, 0x00, 0x10, config_field.device1_uuid[0], config_field.device1_uuid[1], config_field.device1_uuid[2], config_field.device1_uuid[3], config_field.device1_uuid[4], config_field.device1_uuid[5], config_field.device1_uuid[6], config_field.device1_uuid[7], config_field.device1_uuid[8], config_field.device1_uuid[9], config_field.device1_uuid[10], config_field.device1_uuid[11], config_field.device1_uuid[12], config_field.device1_uuid[13], config_field.device1_uuid[14], 0x02};
-				size_t data_length = sizeof(hex_data2);
-				mk_uwb::send(hex_data2, data_length);
+				if (config_field.device1_uuid[15]==0x02 || config_field.device2_uuid[15]==0x02){
+					unsigned char hex_data2[] = {CMD_START_UWB_RANGING, 0x00, 0x13, 0x03, 0x00, 0x10, config_field.device1_uuid[0], config_field.device1_uuid[1], config_field.device1_uuid[2], config_field.device1_uuid[3], config_field.device1_uuid[4], config_field.device1_uuid[5], config_field.device1_uuid[6], config_field.device1_uuid[7], config_field.device1_uuid[8], config_field.device1_uuid[9], config_field.device1_uuid[10], config_field.device1_uuid[11], config_field.device1_uuid[12], config_field.device1_uuid[13], config_field.device1_uuid[14], 0x02};
+					size_t data_length = sizeof(hex_data2);
+					mk_uwb::send(hex_data2, data_length);
+				}
+				else{
+					break;
+				}
 
 			} else {
 				PX4_ERR("Target Anchor doesnt exist");
@@ -453,6 +466,7 @@ void MK_UWB::parameters_update()
 		// this class attributes need updating (and do so).
 		updateParams();
 	}
+	target_anchor.update();
 }
 
 int MK_UWB::print_usage(const char *reason)
