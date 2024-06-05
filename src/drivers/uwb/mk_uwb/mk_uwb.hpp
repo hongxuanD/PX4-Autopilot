@@ -67,7 +67,6 @@ private:
 
 
 	DEFINE_PARAMETERS(
-		(ParamInt<px4::params::UWB_PORT_CFG>)  _uwb_port_cfg,
 		(ParamInt<px4::params::UWB_TARG_BASE>) target_anchor
 	)
 	struct sensor_uwb_s sensor_uwb;
