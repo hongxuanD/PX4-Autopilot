@@ -1,0 +1,5 @@
+menuconfig DRIVERS_UWB_MK_UWBS
+	bool "mk_uwbs"
+	default n
+	---help---
+		Enable support for mk_uwbs

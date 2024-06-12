@@ -21,7 +21,7 @@
 #include <systemlib/err.h>
 #include <drivers/drv_hrt.h>
 #include <ctype.h>
-#include "mk_uwb.hpp"
+#include "mk_uwbs.hpp"
 #include <px4_platform_common/px4_work_queue/ScheduledWorkItem.hpp>
 
 #include "uwb_commands.hpp"

@@ -1,5 +1,0 @@
-menuconfig MODULES_MK_UWB
-	bool "mk_uwb"
-	default n
-	---help---
-		Enable support for mk_uwb

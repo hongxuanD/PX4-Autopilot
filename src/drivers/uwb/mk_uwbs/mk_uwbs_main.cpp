@@ -18,7 +18,7 @@
 #include <uORB/uORB.h>
 #include <uORB/topics/sensor_uwb.h>
 #include <uORB/topics/vehicle_land_detected.h>
-#include "mk_uwb.hpp"
+#include "mk_uwbs.hpp"
 
 static bool thread_should_exit = false;	/**< daemon exit flag */
 static bool thread_running = false;		/**< daemon status flag */
